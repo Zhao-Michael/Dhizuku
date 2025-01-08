@@ -23,11 +23,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.twotone.Help
 import androidx.compose.material.icons.twotone.Adb
 import androidx.compose.material.icons.twotone.AttachMoney
 import androidx.compose.material.icons.twotone.Cancel
 import androidx.compose.material.icons.twotone.Code
 import androidx.compose.material.icons.twotone.DoNotDisturbOn
+import androidx.compose.material.icons.twotone.Help
 import androidx.compose.material.icons.twotone.MoreVert
 import androidx.compose.material.icons.twotone.RoomPreferences
 import androidx.compose.material.icons.twotone.SentimentVeryDissatisfied
@@ -134,6 +136,7 @@ private fun OverflowMenu() {
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
     var shutdownDialogShow by remember { mutableStateOf(false) }
+    var helpDialogShow by remember { mutableStateOf(false) }
 
     IconButton(onClick = { menuExpanded = true }) {
         Icon(Icons.TwoTone.MoreVert, null)
@@ -150,6 +153,15 @@ private fun OverflowMenu() {
             shutdownDialogShow = true
         })
 
+        DropdownMenuItem(text = {
+            Text("User Manual")
+        }, leadingIcon = {
+            Icon(Icons.AutoMirrored.TwoTone.Help, null)
+        }, onClick = {
+            menuExpanded = false
+            helpDialogShow = true
+        })
+
         R.string.wechat
         R.string.alipay
         R.string.binance
@@ -163,25 +175,49 @@ private fun OverflowMenu() {
         })
     }
 
-    if (!shutdownDialogShow) return
-    AlertDialog(onDismissRequest = {
-        shutdownDialogShow = false
-    }, confirmButton = {
-        TextButton(onClick = {
+    if (helpDialogShow) {
+        AlertDialog(onDismissRequest = {
+            helpDialogShow = false
+        }, confirmButton = {
+            TextButton(onClick = {
+                helpDialogShow = false
+            }) {
+                Text(stringResource(R.string.cancel))
+            }
+        }, title = {
+            Text("User Manual")
+        }, text = {
+            HtmlText(
+                "1. 通过 Accounts 查看当前设备中所有账号及应用 <br/>" +
+                        "2. 通过 Hail(雹) 停用上述应用并推出手机账号 <br/>" +
+                        "3. 通过无线调试启动 Shizuku  <br/>" +
+                        "4. 激活 Dhizuku (通过 Shizuku )  <br/>" +
+                        "5. 其他应用 Dhizuku.binder 获取应用管理授权 <br/>" +
+                        "6. 注意：需允许访问非 SDK 接口 (ADB 命令) <br/>"
+            )
+        })
+    }
+
+    if (shutdownDialogShow) {
+        AlertDialog(onDismissRequest = {
             shutdownDialogShow = false
-        }) {
-            Text(stringResource(R.string.cancel))
-        }
-        TextButton(onClick = {
-            exitProcess(0)
-        }) {
-            Text(stringResource(R.string.confirm))
-        }
-    }, title = {
-        Text(stringResource(R.string.home_shutdown_title))
-    }, text = {
-        Text(stringResource(R.string.home_shutdown_dsp))
-    })
+        }, confirmButton = {
+            TextButton(onClick = {
+                shutdownDialogShow = false
+            }) {
+                Text(stringResource(R.string.cancel))
+            }
+            TextButton(onClick = {
+                exitProcess(0)
+            }) {
+                Text(stringResource(R.string.confirm))
+            }
+        }, title = {
+            Text(stringResource(R.string.home_shutdown_title))
+        }, text = {
+            Text(stringResource(R.string.home_shutdown_dsp))
+        })
+    }
 }
 
 @Composable

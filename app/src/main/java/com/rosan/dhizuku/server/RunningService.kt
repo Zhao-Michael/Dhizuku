@@ -1,5 +1,6 @@
 package com.rosan.dhizuku.server
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,11 +12,13 @@ import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.rosan.dhizuku.App
 import com.rosan.dhizuku.R
 import com.rosan.dhizuku.data.common.util.getPackageInfoForUid
 import com.rosan.dhizuku.data.common.util.signature
 import com.rosan.dhizuku.data.settings.model.room.entity.AppEntity
 import com.rosan.dhizuku.data.settings.repo.AppRepo
+import com.rosan.dhizuku.ui.activity.SettingsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +31,8 @@ class RunningService : Service(), KoinComponent {
         fun start(context: Context) {
             context.startService(Intent(context, RunningService::class.java))
         }
+
+        const val Intent_StartActivity = 1
     }
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -102,11 +107,13 @@ class RunningService : Service(), KoinComponent {
             manager.createNotificationChannel(channel)
         val notificationId = 1
         val notification = NotificationCompat.Builder(this, channel.id)
-            .setSmallIcon(R.drawable.round_hourglass_empty_black_24)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(getString(R.string.service_running))
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
             .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setAutoCancel(false)
+            .setAutoCancel(true)
+            .setShowWhen(true)
+            .setContentIntent(getPendingIntent())
             .setOngoing(true)
             .build()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -117,4 +124,16 @@ class RunningService : Service(), KoinComponent {
             ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING
         )
     }
+
+    private fun getPendingIntent(): PendingIntent {
+        val intent = Intent(this, SettingsActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            Intent_StartActivity,
+            intent,
+            PendingIntent.FLAG_MUTABLE
+        )
+        return pendingIntent
+    }
+
 }
