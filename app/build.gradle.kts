@@ -79,17 +79,7 @@ android {
             )
         }
     }
-
-    java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
-        }
-    }
-
-    kotlin {
-        jvmToolchain(17)
-    }
-
+    
     buildFeatures {
         buildConfig = true
         compose = true
